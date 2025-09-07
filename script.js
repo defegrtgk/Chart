@@ -1,6 +1,5 @@
 let OPENAI_API_KEY = "";
 let PERPLEXITY_API_KEY = ""; 
-let VERCEL_AI_GATEWAY_API_KEY = "";
 
 let conversations = []; 
 let currentConversation = []; 
@@ -18,7 +17,6 @@ async function loadApiKeys() {
       const rawText = await response.text();
   
       const keys = JSON.parse(rawText);
-      console.log(keys);
 
       OPENAI_API_KEY = keys.OPENAI_KEY || "";
       PERPLEXITY_API_KEY = keys.PPLX_KEY || "";
@@ -97,7 +95,7 @@ async function fetchChatGPTResponse(message) {
   }
   
   async function fetchModelResponseWithPuter(prompt) {
-    const response = await puter.ai.chat(prompt, { model: "gpt-5-nano" });  // ✅ default model
+    const response = await puter.ai.chat(prompt, { model: "gpt-5-nano" });  
     return response.message ? response.message.content : response;
   }
 
@@ -138,7 +136,6 @@ function displayConversation(conversation) {
             });
             div.appendChild(ul);
           } else {
-            // Single line paragraph
             const p = document.createElement("p");
             p.textContent = part.trim();
             div.appendChild(p);
@@ -356,6 +353,7 @@ function setCookie(name, value, days) {
     loadHistoryFromCookies();
   };
   
+
 
 
 
