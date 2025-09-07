@@ -22,9 +22,7 @@ async function loadApiKeys() {
 
       OPENAI_API_KEY = keys.OPENAI_KEY || "";
       PERPLEXITY_API_KEY = keys.PPLX_KEY || "";
-      VERCEL_AI_GATEWAY_API_KEY = keys.VERCEL_AI_GATEWAY_KEY || "";
       
-      console.log(VERCEL_AI_GATEWAY_API_KEY);
     } catch (error) {
       console.error("Failed to load API keys from Google Sheets:", error);
     }
@@ -102,42 +100,6 @@ async function fetchChatGPTResponse(message) {
     const response = await puter.ai.chat(prompt, { model: "gpt-5-nano" });  // ✅ default model
     return response.message ? response.message.content : response;
   }
-
-  async function fetchVercelGatewayResponse(message) {
-  const endpoint = "https://ai-gateway.vercel.sh/v1/chat/completions";
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${VERCEL_AI_GATEWAY_API_KEY}`,
-  };
-  console.log(headers);
-  const body = JSON.stringify({
-    model: "openai/gpt-5", 
-    messages: [
-      { role: "user", content: message }
-    ],
-    stream: false
-  });
-  console.log(body);
-
-  try {
-    const response = await fetch(endpoint, { method: "POST", headers, body });
-        console.log(response);
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Vercel AI Gateway Error:", errorData);
-      throw new Error(`API Error: ${errorData.error?.message || response.statusText}`);
-    }
-    const data = await response.json();
-    return data.choices.message.content;
-  } catch (error) {
-            console.log(error);
-
-    console.error("Error fetching Vercel AI Gateway response:", error);
-    return "Sorry, there was an issue connecting to Vercel AI Gateway.";
-  }
-}
-
 
 
 function displayConversation(conversation) {
@@ -279,8 +241,6 @@ async function sendMessage() {
         responseText = await fetchChatGPTResponse(userMessage);
       } else if (selectedModel === "per") {
         responseText = await fetchPerplexityResponse(userMessage);
-      } else if (selectedModel === "ver") {
-         responseText = await fetchVercelGatewayResponse(userMessage);
       } else {
         responseText = await fetchModelResponseWithPuter(userMessage);
       }
@@ -396,6 +356,7 @@ function setCookie(name, value, days) {
     loadHistoryFromCookies();
   };
   
+
 
 
 
