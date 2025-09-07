@@ -18,7 +18,8 @@ async function loadApiKeys() {
       const rawText = await response.text();
   
       const keys = JSON.parse(rawText);
-  
+        console.log(keys);
+
       OPENAI_API_KEY = keys.OPENAI_KEY || "";
       PERPLEXITY_API_KEY = keys.PPLX_KEY || "";
       VERCEL_AI_GATEWAY_API_KEY = keys.VERCEL_AI_GATEWAY_KEY || "";
@@ -395,6 +396,7 @@ function setCookie(name, value, days) {
     loadHistoryFromCookies();
   };
   
+
 
 
 
