@@ -104,7 +104,7 @@ async function fetchChatGPTResponse(message) {
 
 
 
- function displayConversation(conversation) {
+function displayConversation(conversation) {
   const responseArea = document.getElementById("responseArea");
   responseArea.innerHTML = "";
 
@@ -118,14 +118,11 @@ async function fetchChatGPTResponse(message) {
     if (messageObj.sender !== "You") {
       const content = messageObj.message;
 
-      // Regex to split by code blocks: keeps code blocks separate from text
-      // This regex splits the string at code blocks ```...```
       const parts = content.split(/(```[\s\S]*?```)/g);
 
       parts.forEach(part => {
         if (part.startsWith("```")) {
-          // This is a code block
-          const codeContent = part.replace(/```/g, ""); // remove triple backticks
+          const codeContent = part.replace(/```(\w+)?\n?/, "").replace(/```$/, "");
 
           const pre = document.createElement("pre");
           const code = document.createElement("code");
@@ -133,9 +130,7 @@ async function fetchChatGPTResponse(message) {
           pre.appendChild(code);
           div.appendChild(pre);
         } else {
-          // Normal text: split by lines or dashes and add bullet points
-          const lines = part.split(/\n|-\s*/).filter(line => line.trim() !== "");
-
+          const lines = part.split(/\n/).filter(line => line.trim() !== "");
           if (lines.length > 1) {
             const ul = document.createElement("ul");
             lines.forEach(line => {
@@ -145,27 +140,26 @@ async function fetchChatGPTResponse(message) {
             });
             div.appendChild(ul);
           } else {
-            // If only one line, just add text node
+            // Single line paragraph
             const p = document.createElement("p");
             p.textContent = part.trim();
             div.appendChild(p);
           }
         }
       });
-
     } else {
       div.textContent = messageObj.message;
     }
 
-    // Copy button
     const copyBtn = document.createElement("button");
     copyBtn.textContent = "📋 Copy";
     copyBtn.classList.add("copy-btn");
     copyBtn.addEventListener("click", () => {
-      navigator.clipboard.writeText(messageObj.message)
+      const cleanCopyText = messageObj.message.replace(/```(\w+)?\n?/g, "").replace(/```/g, "");
+      navigator.clipboard.writeText(cleanCopyText)
         .then(() => {
           copyBtn.textContent = "✅ Copied!";
-          setTimeout(() => copyBtn.textContent = "📋 Copy", 1500);
+          setTimeout(() => (copyBtn.textContent = "📋 Copy"), 1500);
         })
         .catch(() => alert("Copy failed"));
     });
@@ -365,4 +359,5 @@ function setCookie(name, value, days) {
     loadHistoryFromCookies();
   };
   
+
 
