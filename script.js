@@ -96,8 +96,11 @@ async function fetchChatGPTResponse(message) {
     }
   }
   
-
-
+  async function fetchModelResponseWithPuter(prompt) {
+    const response = await puter.ai.chat(prompt, { model: "gpt-5-nano" });  // ✅ default model
+    return response.message ? response.message.content : response;
+  }
+  
 
 
 
@@ -196,8 +199,11 @@ async function sendMessage() {
   
     try {
       let responseText = "";
-  
-      if (selectedModel === "chat") {
+      
+      if (selectedModel === "puter") {
+        responseText = await fetchModelResponseWithPuter(userMessage);
+      }
+      else if (selectedModel === "chat") {
         responseText = await fetchChatGPTResponse(userMessage);
       } else if (selectedModel === "per") {
         responseText = await fetchPerplexityResponse(userMessage);
