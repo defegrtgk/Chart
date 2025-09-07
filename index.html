@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat UI with Search History</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <button id="newConversationButton">New</button>
+      <h3>Search History</h3>
+      <ul id="history"></ul>
+    </div>
+
+    <div class="main-content">
+      <div class="response-area" id="responseArea">
+        <p class="center-text">What can I help with?</p> 
+      </div>
+      <div class="input-area">
+        <select id="modelSelector">
+            <option value="per">Per</option>
+             <option value="chat">Chat</option>
+           </select>
+        <textarea id="userInput" placeholder="Message model" rows="1"></textarea>
+        <button id="sendButton">Send</button>
+      </div>      
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
