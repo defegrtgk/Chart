@@ -104,35 +104,78 @@ async function fetchChatGPTResponse(message) {
 
 
 
-  function displayConversation(conversation) {
-    const responseArea = document.getElementById("responseArea");
-    responseArea.innerHTML = ""; 
-  
-    conversation.forEach((messageObj, index) => {
-      const wrapper = document.createElement("div");
-      wrapper.classList.add("message-wrapper");
-  
-      const div = document.createElement("div");
-      div.classList.add("message", messageObj.sender === "You" ? "user" : "chatgpt");
-      div.textContent = messageObj.message;
-  
-      const copyBtn = document.createElement("button");
-      copyBtn.textContent = "📋 Copy";
-      copyBtn.classList.add("copy-btn");
-      copyBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(messageObj.message)
-          .then(() => {
-            copyBtn.textContent = "✅ Copied!";
-            setTimeout(() => copyBtn.textContent = "📋 Copy", 1500);
-          })
-          .catch(() => alert("Copy failed"));
+ function displayConversation(conversation) {
+  const responseArea = document.getElementById("responseArea");
+  responseArea.innerHTML = "";
+
+  conversation.forEach((messageObj) => {
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("message-wrapper");
+
+    const div = document.createElement("div");
+    div.classList.add("message", messageObj.sender === "You" ? "user" : "chatgpt");
+
+    if (messageObj.sender !== "You") {
+      const content = messageObj.message;
+
+      // Regex to split by code blocks: keeps code blocks separate from text
+      // This regex splits the string at code blocks ```...```
+      const parts = content.split(/(```[\s\S]*?```)/g);
+
+      parts.forEach(part => {
+        if (part.startsWith("```")) {
+          // This is a code block
+          const codeContent = part.replace(/```/g, ""); // remove triple backticks
+
+          const pre = document.createElement("pre");
+          const code = document.createElement("code");
+          code.textContent = codeContent.trim();
+          pre.appendChild(code);
+          div.appendChild(pre);
+        } else {
+          // Normal text: split by lines or dashes and add bullet points
+          const lines = part.split(/\n|-\s*/).filter(line => line.trim() !== "");
+
+          if (lines.length > 1) {
+            const ul = document.createElement("ul");
+            lines.forEach(line => {
+              const li = document.createElement("li");
+              li.textContent = line.trim();
+              ul.appendChild(li);
+            });
+            div.appendChild(ul);
+          } else {
+            // If only one line, just add text node
+            const p = document.createElement("p");
+            p.textContent = part.trim();
+            div.appendChild(p);
+          }
+        }
       });
-  
-      wrapper.appendChild(div);
-      wrapper.appendChild(copyBtn);
-      responseArea.appendChild(wrapper);
+
+    } else {
+      div.textContent = messageObj.message;
+    }
+
+    // Copy button
+    const copyBtn = document.createElement("button");
+    copyBtn.textContent = "📋 Copy";
+    copyBtn.classList.add("copy-btn");
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(messageObj.message)
+        .then(() => {
+          copyBtn.textContent = "✅ Copied!";
+          setTimeout(() => copyBtn.textContent = "📋 Copy", 1500);
+        })
+        .catch(() => alert("Copy failed"));
     });
-  }
+
+    wrapper.appendChild(div);
+    wrapper.appendChild(copyBtn);
+    responseArea.appendChild(wrapper);
+  });
+}
+
   
 
 function updateHistory(conversationId) {
@@ -322,3 +365,4 @@ function setCookie(name, value, days) {
     loadHistoryFromCookies();
   };
   
+
