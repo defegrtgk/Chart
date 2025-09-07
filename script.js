@@ -23,7 +23,7 @@ async function loadApiKeys() {
       PERPLEXITY_API_KEY = keys.PPLX_KEY || "";
       VERCEL_AI_GATEWAY_API_KEY = keys.VERCEL_AI_GATEWAY_KEY || "";
       
-  
+      console.log(VERCEL_AI_GATEWAY_API_KEY);
     } catch (error) {
       console.error("Failed to load API keys from Google Sheets:", error);
     }
@@ -108,7 +108,7 @@ async function fetchChatGPTResponse(message) {
     "Content-Type": "application/json",
     Authorization: `Bearer ${VERCEL_AI_GATEWAY_API_KEY}`,
   };
-
+  console.log(headers);
   const body = JSON.stringify({
     model: "openai/gpt-5", 
     messages: [
@@ -116,9 +116,12 @@ async function fetchChatGPTResponse(message) {
     ],
     stream: false
   });
+  console.log(body);
 
   try {
     const response = await fetch(endpoint, { method: "POST", headers, body });
+        console.log(response);
+
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Vercel AI Gateway Error:", errorData);
@@ -127,6 +130,8 @@ async function fetchChatGPTResponse(message) {
     const data = await response.json();
     return data.choices.message.content;
   } catch (error) {
+            console.log(error);
+
     console.error("Error fetching Vercel AI Gateway response:", error);
     return "Sorry, there was an issue connecting to Vercel AI Gateway.";
   }
@@ -390,6 +395,7 @@ function setCookie(name, value, days) {
     loadHistoryFromCookies();
   };
   
+
 
 
 
