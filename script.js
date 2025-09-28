@@ -27,20 +27,26 @@ async function loadApiKeys() {
   }
   
 
-async function fetchPerplexityResponse(message) {
-  const endpoint = " https://api.perplexity.ai/chat/completions";
+async function fetchPerplexityResponse() {
+  const endpoint = "https://api.perplexity.ai/chat/completions";
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
   };
 
+  let messages = currentConversation.map(msg => ({
+    role: msg.sender === "You" ? "user" : "assistant",
+    content: msg.message
+  }));
+
+  while (messages.length && messages[messages.length - 1].role === "assistant") {
+    messages.pop();
+  }
+
   const body = JSON.stringify({
     model: "sonar",
-    messages: [
-      { role: "user", content: message }
-    ],
+    messages: messages,
   });
-
   try {
     const response = await fetch(endpoint, { method: "POST", headers, body });
 
@@ -59,45 +65,71 @@ async function fetchPerplexityResponse(message) {
   }
 }
 
-async function fetchChatGPTResponse(message) {
-    const endpoint = "https://api.openai.com/v1/chat/completions";
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    };
-  
-    const body = JSON.stringify({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: message },
-      ],
-      max_tokens: 150,
-      temperature: 0.7,
+
+
+async function fetchChatGPTResponse() {
+  const endpoint = "https://api.openai.com/v1/chat/completions";
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${OPENAI_API_KEY}`,
+  };
+
+  // Build the message history for OpenAI
+  const messages = [
+    { role: "system", content: "You are a helpful assistant." },
+    ...currentConversation.map(msg => ({
+      role: msg.sender === "You" ? "user" : "assistant",
+      content: msg.message
+    }))
+  ];
+
+  const body = JSON.stringify({
+    model: "gpt-3.5-turbo",
+    messages: messages,
+    max_tokens: 150,
+    temperature: 0.7,
+  });
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      body
     });
-  
-    try {
-      const response = await fetch(endpoint, { method: "POST", headers, body });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("OpenAI API Error:", errorData);
-        throw new Error(`API Error: ${errorData.error.message}`);
-      }
-  
-      const data = await response.json();
-      return data.choices[0].message.content;
-  
-    } catch (error) {
-      console.error("Error fetching ChatGPT response:", error);
-      return "Sorry, there was an issue connecting to ChatGPT.";
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("OpenAI API Error:", errorData);
+      throw new Error(`API Error: ${errorData.error.message}`);
     }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+
+  } catch (error) {
+    console.error("Error fetching ChatGPT response:", error);
+    return "Sorry, there was an issue connecting to ChatGPT.";
   }
-  
-  async function fetchModelResponseWithPuter(prompt) {
-    const response = await puter.ai.chat(prompt, { model: "gpt-5-nano" });  
+}
+
+  async function fetchModelResponseWithPuter() {
+  const messages = currentConversation.map(msg => ({
+    role: msg.sender === "You" ? "user" : "assistant",
+    content: msg.message
+  }));
+
+  while (messages.length && messages[messages.length - 1].role === "assistant") {
+    messages.pop();
+  }
+
+  try {
+    const response = await puter.ai.chat({ messages }, { model: "gpt-5-nano" });
     return response.message ? response.message.content : response;
+  } catch (error) {
+    console.error("Error fetching Puter response:", error);
+    return "Sorry, there was an issue connecting to Puter.";
   }
+}
 
 
 function displayConversation(conversation) {
@@ -353,6 +385,7 @@ function setCookie(name, value, days) {
     loadHistoryFromCookies();
   };
   
+
 
 
 
