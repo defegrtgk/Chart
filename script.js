@@ -112,10 +112,25 @@ async function fetchChatGPTResponse() {
   }
 }
 
-   async function fetchModelResponseWithPuter(prompt) {
-    const response = await puter.ai.chat(prompt, { model: "gpt-5-nano" });  
-    return response.message ? response.message.content : response;
+   
+  async function fetchModelResponseWithPuter() {
+  const messages = currentConversation.map(msg => ({
+    role: msg.sender === "You" ? "user" : "assistant",
+    content: msg.message
+  }));
+
+  while (messages.length && messages[messages.length - 1].role === "assistant") {
+    messages.pop();
   }
+
+  try {
+    const response = await puter.ai.chat({ messages }, { model: "gpt-5-nano" });
+    return response.message ? response.message.content : response;
+  } catch (error) {
+    console.error("Error fetching Puter response:", error);
+    return "Sorry, there was an issue connecting to Puter.";
+  }
+}
 
 
 function displayConversation(conversation) {
@@ -371,6 +386,7 @@ function setCookie(name, value, days) {
     loadHistoryFromCookies();
   };
   
+
 
 
 
