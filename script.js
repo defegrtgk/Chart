@@ -112,15 +112,10 @@ async function fetchChatGPTResponse() {
   }
 }
 
-  async function fetchModelResponseWithPuter(prompt) {
-  try {
-    const response = await puter.ai.chat(prompt, { model: "gpt-5-nano" }); // or other available models
+   async function fetchModelResponseWithPuter(prompt) {
+    const response = await puter.ai.chat(prompt, { model: "gpt-5-nano" });  
     return response.message ? response.message.content : response;
-  } catch (error) {
-    console.error("Error connecting to Puter:", error);
-    return "Sorry, there was an issue connecting to Puter.";
   }
-}
 
 
 function displayConversation(conversation) {
@@ -376,6 +371,7 @@ function setCookie(name, value, days) {
     loadHistoryFromCookies();
   };
   
+
 
 
 
